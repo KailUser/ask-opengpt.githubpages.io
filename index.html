@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/ai_modules/ai.js"></script>
+  <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <title>OpenGPT | OpenTEST</title>
+</head>
+<body onload="write();">
+  <h1 id="typing-text"></h1>
+  <p style="color: red;">Code not supported! Only small text</p>
+  <form id="question-form">
+    <div id="answer-container"></div><br>
+    <label for="question-input">Ask a question:</label>
+    <input type="text" id="question-input" name="question"><br><br>
+    <button type="submit">Submit</button>
+  </form>
+  <script>
+    const questionForm = document.getElementById("question-form");
+    const questionInput = document.getElementById("question-input");
+    const answerContainer = document.getElementById("answer-container");
+
+    async function getAnswer(question) {
+      // make a request to the OpenAI API
+      const response = await fetch('https://api.openai.com/v1/engines/davinci-codex/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer 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' 
+        },
+        body: JSON.stringify({
+          'prompt': 'Q: ' + question + '\nA:',
+          'max_tokens': 1000,
+          'temperature': 0.7,
+          'stop': ['\n']
+        })
+      });
+
+      const data = await response.json();
+
+      // check if the choices array exists and has at least one element
+      if (data.choices && data.choices.length > 0) {
+        // check if the first element of the choices array has a text property
+        if (data.choices[0].text) {
+          // display the answer
+          return data.choices[0].text;
+        }
+      }
+
+      // if there was no answer, return an error message
+      return "Sorry, I couldn't understand the question.";
+    }
+
+    questionForm.addEventListener("submit", async function(event) {
+      event.preventDefault(); // prevent the form from submitting
+
+      const question = questionInput.value;
+      answerContainer.innerHTML = "I asking OpenAI API👁️‍🗨️. Wait please";
+
+      const answer = await getAnswer(question);
+
+      // display the answer
+      answerContainer.innerHTML = answer;
+    });
+  </script>
+</body>
+</html>
